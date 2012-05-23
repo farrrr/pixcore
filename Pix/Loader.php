@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * Pix_Loader 處理 PHP AutoLoad Class 的功能
+ * 
+ * @package Pix_Loader
+ * @version
+ * @copyright 2003-2009 PIXNET
+ * @author Shang-Rung Wang <srwang@pixnet.tw> 
+ * @license 
+ */
+class Pix_Loader
+{
+    protected static function autoload($class)
+    {
+	if (class_exists($class, false) or interface_exists($class, false)) {
+	    return false;
+	}
+
+	$class = str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
+
+	$paths = explode(PATH_SEPARATOR, get_include_path());
+	foreach ($paths as $path) {
+	    $path = rtrim($path, '/');
+	    if (file_exists($path . '/' . $class)) {
+		require $class;
+
+		return true;
+	    }
+	}
+
+	return false;
+    }
+
+    /**
+     * registerAutoload 呼叫這 function 就會讓 PHP 在 Load Foo_Bar 的 class 時，會去 include path 找 Foo/Bar.php
+     * 
+     * @static
+     * @access public
+     * @return void
+     */
+    public static function registerAutoload()
+    {
+	spl_autoload_register(array('Pix_Loader', 'autoload'));
+    }
+}
